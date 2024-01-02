@@ -110,6 +110,33 @@ func (r *Result) SetPorts(ip string, ports []*port.Port) {
 	r.ips[ip] = struct{}{}
 }
 
+// Get port object for (ip, port)
+func (r *Result) GetPort(ip string, port int) *port.Port {
+	r.RLock()
+	defer r.RUnlock()
+
+	for _, ports := range r.ipPorts {
+		for _, p := range ports {
+			if p.Port == port {
+				return p
+			}
+		}
+	}
+	return nil
+}
+
+// Update port object for (ip, port)
+func (r *Result) UpdatePort(ip string, p *port.Port) {
+	r.Lock()
+	defer r.Unlock()
+
+	if _, ok := r.ipPorts[ip]; !ok {
+		r.ipPorts[ip] = make(map[string]*port.Port)
+	}
+
+	r.ipPorts[ip][p.String()] = p
+}
+
 // IPHasPort checks if an ip has a specific port
 func (r *Result) IPHasPort(ip string, p *port.Port) bool {
 	r.RLock()

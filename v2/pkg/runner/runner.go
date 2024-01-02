@@ -326,10 +326,9 @@ func (r *Runner) RunEnumeration() error {
 			r.ConnectVerification()
 		}
 
+		r.handleNmap()
 		r.handleOutput(r.scanner.ScanResults)
-
-		// handle nmap
-		return r.handleNmap()
+		return nil
 	default:
 		showNetworkCapabilities(r.options)
 
@@ -490,9 +489,8 @@ func (r *Runner) RunEnumeration() error {
 		}
 
 		r.handleOutput(r.scanner.ScanResults)
-
-		// handle nmap
-		return r.handleNmap()
+		r.handleNmap()
+		return nil
 	}
 }
 
