@@ -1,8 +1,9 @@
 package runner
 
 import (
+	"bytes"
+	"encoding/xml"
 	"fmt"
-	"os"
 	"os/exec"
 	"sort"
 	"strings"
@@ -13,6 +14,43 @@ import (
 	"github.com/projectdiscovery/naabu/v2/pkg/result"
 	osutil "github.com/projectdiscovery/utils/os"
 )
+
+type NmapRun struct {
+	Hosts []Host `xml:"host"`
+}
+
+type Address struct {
+	Addr     string `xml:"addr,attr"`
+	AddrType string `xml:"addrtype,attr"`
+}
+
+type Host struct {
+	IP    Address `xml:"address"`
+	Ports Ports   `xml:"ports"`
+}
+
+type Ports struct {
+	Port []Port `xml:"port"`
+}
+
+type Port struct {
+	Protocol string  `xml:"protocol,attr"`
+	PortID   int     `xml:"portid,attr"`
+	State    State   `xml:"state"`
+	Service  Service `xml:"service"`
+}
+
+type State struct {
+	State string `xml:"state,attr"`
+}
+
+type Service struct {
+	Name      string `xml:"name,attr"`
+	Product   string `xml:"product,attr"`
+	ExtraInfo string `xml:"extrainfo,attr"`
+
+	CPEs []string `xml:"cpe"`
+}
 
 func (r *Runner) handleNmap() error {
 	// command from CLI
@@ -103,12 +141,47 @@ func (r *Runner) handleNmap() error {
 
 				cmd := exec.Command(nmapCommand, args[posArgs:]...)
 
-				cmd.Stdout = os.Stdout
+				var out bytes.Buffer
+				cmd.Stdout = &out
 				err := cmd.Run()
+
 				if err != nil {
 					errMsg := errors.Wrap(err, "Could not run nmap command")
 					gologger.Error().Msgf(errMsg.Error())
 					return errMsg
+				}
+
+				var nmapRun NmapRun
+				err = xml.Unmarshal(out.Bytes(), &nmapRun)
+				gologger.Info().Msgf("Nmap command output:\n%s", out.String())
+				if err != nil {
+					errMsg := errors.Wrap(err, "Could not parse nmap command output")
+					gologger.Error().Msgf(errMsg.Error())
+					return errMsg
+				}
+
+				for _, host := range nmapRun.Hosts {
+					for _, port := range host.Ports.Port {
+						previousPortInfo := r.scanner.ScanResults.GetPort(host.IP.Addr, port.PortID)
+						if previousPortInfo == nil {
+							continue
+						} else if previousPortInfo.Service.Name != "" {
+							continue
+						} else {
+							gologger.Info().Msgf(
+								"Nmap found new service for %s:%d (%s) (%s)",
+								host.IP.Addr, port.PortID, port.Service.Name, port.Service.Product,
+							)
+
+							previousPortInfo.Service.State = port.State.State
+							previousPortInfo.Service.Name = port.Service.Name
+							previousPortInfo.Service.Product = port.Service.Product
+							previousPortInfo.Service.ExtraInfo = port.Service.ExtraInfo
+							previousPortInfo.Service.CPEs = port.Service.CPEs
+
+							r.scanner.ScanResults.UpdatePort(host.IP.Addr, previousPortInfo)
+						}
+					}
 				}
 			} else {
 				gologger.Info().Msgf("Suggested nmap command: %s -p %s %s", command, portsStr, ipsStr)
