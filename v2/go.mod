@@ -1,8 +1,8 @@
-module github.com/projectdiscovery/naabu/v2
+module github.com/kenan7/naabu/v2
 
 go 1.21
 
-replace github.com/projectdiscovery/naabu/v2 => github.com/kenan7/naabu/v2 v2.3.0
+// replace github.com/projectdiscovery/naabu/v2 => github.com/kenan7/naabu/v2 v2.3.0
 
 require (
 	github.com/asaskevich/govalidator v0.0.0-20230301143203-a9d515a09cc2
@@ -20,6 +20,7 @@ require (
 	github.com/projectdiscovery/gologger v1.1.12
 	github.com/projectdiscovery/ipranger v0.0.27
 	github.com/projectdiscovery/mapcidr v1.1.16
+	github.com/projectdiscovery/naabu/v2 v2.2.0
 	github.com/projectdiscovery/networkpolicy v0.0.6
 	github.com/projectdiscovery/ratelimit v0.0.22
 	github.com/projectdiscovery/retryablehttp-go v1.0.42
