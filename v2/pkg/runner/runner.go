@@ -60,6 +60,8 @@ type Target struct {
 // NewRunner creates a new runner struct instance by parsing
 // the configuration options, configuring sources, reading lists, etc
 func NewRunner(options *Options) (*Runner, error) {
+	options.configureHostDiscovery()
+
 	if options.Retries == 0 {
 		options.Retries = DefaultRetriesSynScan
 	}
@@ -324,10 +326,9 @@ func (r *Runner) RunEnumeration() error {
 			r.ConnectVerification()
 		}
 
+		r.handleNmap()
 		r.handleOutput(r.scanner.ScanResults)
-
-		// handle nmap
-		return r.handleNmap()
+		return nil
 	default:
 		showNetworkCapabilities(r.options)
 
@@ -488,9 +489,8 @@ func (r *Runner) RunEnumeration() error {
 		}
 
 		r.handleOutput(r.scanner.ScanResults)
-
-		// handle nmap
-		return r.handleNmap()
+		r.handleNmap()
+		return nil
 	}
 }
 
@@ -924,29 +924,4 @@ func (r *Runner) handleOutput(scanResults *result.Result) {
 		}
 	}
 
-}
-
-func writeCSVHeaders(data *Result, writer *csv.Writer) {
-	headers, err := data.CSVHeaders()
-	if err != nil {
-		gologger.Error().Msgf(err.Error())
-		return
-	}
-
-	if err := writer.Write(headers); err != nil {
-		errMsg := errors.Wrap(err, "Could not write headers")
-		gologger.Error().Msgf(errMsg.Error())
-	}
-}
-
-func writeCSVRow(data *Result, writer *csv.Writer) {
-	rowData, err := data.CSVFields()
-	if err != nil {
-		gologger.Error().Msgf(err.Error())
-		return
-	}
-	if err := writer.Write(rowData); err != nil {
-		errMsg := errors.Wrap(err, "Could not write row")
-		gologger.Error().Msgf(errMsg.Error())
-	}
 }
