@@ -203,3 +203,5 @@ func (r *Result) HasSkipped(ip string) bool {
 	_, ok := r.skipped[ip]
 	return ok
 }
+
+func GetNewVersion() string { return "v2.0.0" }
