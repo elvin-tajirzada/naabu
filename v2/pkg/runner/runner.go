@@ -682,6 +682,10 @@ func (r *Runner) handleHostDiscovery(host string) {
 	// Syn Probes
 	if len(r.options.TcpSynPingProbes) > 0 {
 		ports, _ := parsePortsSlice(r.options.TcpSynPingProbes)
+		if r.options.EnableTopPortsForTcpSynProbes {
+			ports = r.scanner.Ports
+		}
+
 		r.scanner.EnqueueTCP(host, scan.Syn, ports...)
 	}
 	// Ack Probes

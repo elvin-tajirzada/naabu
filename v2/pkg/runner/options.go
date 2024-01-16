@@ -53,26 +53,27 @@ type Options struct {
 	// Deprecated: stats are automatically available through local endpoint
 	EnableProgressBar bool // Enable progress bar
 	// Deprecated: stats are automatically available through local endpoint (maybe used on cloud?)
-	StatsInterval     int                 // StatsInterval is the number of seconds to display stats after
-	ScanAllIPS        bool                // Scan all the ips
-	IPVersion         goflags.StringSlice // IP Version to use while resolving hostnames
-	ScanType          string              // Scan Type
-	Proxy             string              // Socks5 proxy
-	ProxyAuth         string              // Socks5 proxy authentication (username:password)
-	Resolvers         string              // Resolvers (comma separated or file)
-	baseResolvers     []string
-	OnResult          OnResultCallback // OnResult callback
-	CSV               bool
-	Resume            bool
-	ResumeCfg         *ResumeCfg
-	Stream            bool
-	Passive           bool
-	OutputCDN         bool // display cdn in use
-	HealthCheck       bool
-	OnlyHostDiscovery bool // Perform only host discovery
-	SkipHostDiscovery bool // Skip host discovery
-	TcpSynPingProbes  goflags.StringSlice
-	TcpAckPingProbes  goflags.StringSlice
+	StatsInterval                 int                 // StatsInterval is the number of seconds to display stats after
+	ScanAllIPS                    bool                // Scan all the ips
+	IPVersion                     goflags.StringSlice // IP Version to use while resolving hostnames
+	ScanType                      string              // Scan Type
+	Proxy                         string              // Socks5 proxy
+	ProxyAuth                     string              // Socks5 proxy authentication (username:password)
+	Resolvers                     string              // Resolvers (comma separated or file)
+	baseResolvers                 []string
+	OnResult                      OnResultCallback // OnResult callback
+	CSV                           bool
+	Resume                        bool
+	ResumeCfg                     *ResumeCfg
+	Stream                        bool
+	Passive                       bool
+	OutputCDN                     bool // display cdn in use
+	HealthCheck                   bool
+	OnlyHostDiscovery             bool // Perform only host discovery
+	SkipHostDiscovery             bool // Skip host discovery
+	TcpSynPingProbes              goflags.StringSlice
+	TcpAckPingProbes              goflags.StringSlice
+	EnableTopPortsForTcpSynProbes bool // Top port for tcp syn probes to scan
 	// UdpPingProbes               goflags.StringSlice - planned
 	// STcpInitPingProbes          goflags.StringSlice - planned
 	IcmpEchoRequestProbe        bool
@@ -116,6 +117,7 @@ func ParseOptions() *Options {
 	flagSet.CreateGroup("port", "Port",
 		flagSet.StringVarP(&options.Ports, "p", "port", "", "ports to scan (80,443, 100-200)"),
 		flagSet.StringVarP(&options.TopPorts, "tp", "top-ports", "", "top ports to scan (default 100) [full,100,1000]"),
+		flagSet.BoolVarP(&options.EnableTopPortsForTcpSynProbes, "etptsp", "enable-top-ports-tcp-syn-probes", false, "enable top ports for tcp syn probes to scan (default false)"),
 		flagSet.StringVarP(&options.ExcludePorts, "ep", "exclude-ports", "", "ports to exclude from scan (comma-separated)"),
 		flagSet.StringVarP(&options.PortsFile, "pf", "ports-file", "", "list of ports to scan (file)"),
 		flagSet.IntVarP(&options.PortThreshold, "pts", "port-threshold", 0, "port threshold to skip port scan for the host"),
