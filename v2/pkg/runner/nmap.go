@@ -48,6 +48,8 @@ type Service struct {
 	Name      string `xml:"name,attr"`
 	Product   string `xml:"product,attr"`
 	ExtraInfo string `xml:"extrainfo,attr"`
+	Version   string `xml:"version,attr"`
+	OSType    string `xml:"ostype,attr"`
 
 	CPEs []string `xml:"cpe"`
 }
@@ -173,10 +175,12 @@ func (r *Runner) handleNmap() error {
 								host.IP.Addr, port.PortID, port.Service.Name, port.Service.Product,
 							)
 
-							previousPortInfo.Service.State = port.State.State
+							previousPortInfo.State = port.State.State
 							previousPortInfo.Service.Name = port.Service.Name
 							previousPortInfo.Service.Product = port.Service.Product
 							previousPortInfo.Service.ExtraInfo = port.Service.ExtraInfo
+							previousPortInfo.Service.Version = port.Service.Version
+							previousPortInfo.Service.OSType = port.Service.OSType
 							previousPortInfo.Service.CPEs = port.Service.CPEs
 
 							r.scanner.ScanResults.UpdatePort(host.IP.Addr, previousPortInfo)
