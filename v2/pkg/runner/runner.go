@@ -488,8 +488,8 @@ func (r *Runner) RunEnumeration() error {
 			r.ConnectVerification()
 		}
 
-		r.handleOutput(r.scanner.ScanResults)
 		r.handleNmap()
+		r.handleOutput(r.scanner.ScanResults)
 		return nil
 	}
 }
