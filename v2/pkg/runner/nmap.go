@@ -50,6 +50,7 @@ type Service struct {
 	ExtraInfo string `xml:"extrainfo,attr"`
 	Version   string `xml:"version,attr"`
 	OSType    string `xml:"ostype,attr"`
+	Tunnel    string `xml:"tunnel,attr"`
 
 	CPEs []string `xml:"cpe"`
 }
@@ -182,6 +183,9 @@ func (r *Runner) handleNmap() error {
 							previousPortInfo.Service.Version = port.Service.Version
 							previousPortInfo.Service.OSType = port.Service.OSType
 							previousPortInfo.Service.CPEs = port.Service.CPEs
+							if port.Service.Tunnel == "ssl" {
+								previousPortInfo.TLS = true
+							}
 
 							r.scanner.ScanResults.UpdatePort(host.IP.Addr, previousPortInfo)
 						}
